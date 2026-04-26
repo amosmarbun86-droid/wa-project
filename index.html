@@ -201,9 +201,10 @@ async function kirim() {
   status.innerText = "⏳ Upload...";
 
   let mediaUrl = "";
+  let uploadSuccess = false;
 
   try {
-    // upload file
+    // ================= UPLOAD =================
     if (file) {
       let formData = new FormData();
       formData.append("file", file);
@@ -215,7 +216,13 @@ async function kirim() {
       });
 
       let result = await upload.json();
-      mediaUrl = result.secure_url;
+
+      if (result.secure_url) {
+        mediaUrl = result.secure_url;
+        uploadSuccess = true;
+      } else {
+        console.warn("Upload gagal:", result);
+      }
     }
 
     status.innerText = "📤 Kirim WA...";
@@ -225,12 +232,13 @@ async function kirim() {
       message: pesan
     };
 
-    if (mediaUrl) {
+    // ================= KIRIM MEDIA =================
+    if (uploadSuccess) {
       body.url = mediaUrl;
       body.filename = file.name;
     }
 
-    await fetch("https://api.fonnte.com/send", {
+    let res = await fetch("https://api.fonnte.com/send", {
       method: "POST",
       headers: {
         "Authorization": "hMYEWfgYSGSw6KK81TN6",
@@ -239,13 +247,56 @@ async function kirim() {
       body: JSON.stringify(body)
     });
 
+    let data = await res.json();
+    console.log("Fonnte:", data);
+
+    // ================= FALLBACK =================
+    if ((!data.status || !uploadSuccess) && mediaUrl) {
+      console.warn("Media gagal, kirim ulang sebagai URL");
+
+      await fetch("https://api.fonnte.com/send", {
+        method: "POST",
+        headers: {
+          "Authorization": "hMYEWfgYSGSw6KK81TN6",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          target: nomor,
+          message: pesan + "\n\n" + mediaUrl
+        })
+      });
+
+      status.innerText = "⚠️ Media gagal, dikirim sebagai link";
+      alert("Media gagal, tapi link berhasil dikirim!");
+      return;
+    }
+
     status.innerText = "✅ Berhasil!";
     alert("Pesan berhasil dikirim!");
 
   } catch (err) {
     console.error(err);
-    status.innerText = "❌ Gagal!";
-    alert("Gagal kirim!");
+
+    // fallback kalau error total
+    if (mediaUrl) {
+      await fetch("https://api.fonnte.com/send", {
+        method: "POST",
+        headers: {
+          "Authorization": "hMYEWfgYSGSw6KK81TN6",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          target: nomor,
+          message: pesan + "\n\n" + mediaUrl
+        })
+      });
+
+      status.innerText = "⚠️ Error, link dikirim";
+      alert("Error kirim media, tapi link dikirim!");
+    } else {
+      status.innerText = "❌ Gagal!";
+      alert("Gagal kirim!");
+    }
   }
 
   btn.disabled = false;
