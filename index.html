@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>WA Sender</title>
+  <title>WA Sender Pro</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
@@ -11,55 +11,205 @@
       background: #f2f2f2;
     }
 
-    input, textarea, button {
+    h2 {
+      text-align: center;
+    }
+
+    input, textarea, button, select {
       width: 100%;
       padding: 12px;
       margin-top: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
+      font-size: 14px;
     }
 
     button {
       background: green;
       color: white;
       font-size: 16px;
+      cursor: pointer;
+    }
+
+    #previewImg, #previewVideo {
+      margin-top: 10px;
+      max-width: 100%;
+      display: none;
+      border-radius: 10px;
+    }
+
+    #status {
+      margin-top: 10px;
+      text-align: center;
     }
   </style>
 </head>
 
 <body>
 
-<h2>Kirim WhatsApp</h2>
+<h2>WA Sender Pro</h2>
 
+<!-- ================= KONTAK ================= -->
+<h3>📇 Pilih Kontak</h3>
+<select id="kontakSelect" onchange="isiNomor()">
+  <option value="">-- Pilih Kontak --</option>
+</select>
+
+<input type="text" id="namaKontak" placeholder="Nama Kontak">
+<input type="text" id="nomorKontak" placeholder="628xxxx">
+<button onclick="tambahKontak()">Tambah Kontak</button>
+
+<hr>
+
+<!-- ================= KIRIM ================= -->
 <input type="text" id="nomor" placeholder="628xxxx">
 <textarea id="pesan" placeholder="Tulis pesan"></textarea>
 
-<button onclick="kirim()">Kirim</button>
+<input type="file" id="file" accept="image/*,video/*">
+
+<img id="previewImg">
+<video id="previewVideo" controls></video>
+
+<button id="btnKirim" onclick="kirim()">Kirim</button>
+
+<div id="status"></div>
 
 <script>
-function kirim() {
-  let nomor = document.getElementById("nomor").value;
-  let pesan = document.getElementById("pesan").value;
+// ================= CONFIG =================
+const CLOUD_NAME = "dkisbfx29";
+const UPLOAD_PRESET = "ml_default";
+const TOKEN = "ISI_TOKEN_KAMU";
 
-  fetch("https://api.fonnte.com/send", {
-    method: "POST",
-    headers: {
-      "Authorization": "hMYEWfgYSGSw6KK81TN6",
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      target: nomor,
-      message: pesan
-    })
-  })
-  .then(res => res.json())
-  .then(data => {
-    alert("Pesan berhasil dikirim!");
-  })
-  .catch(err => {
-    alert("Gagal kirim!");
+// ================= KONTAK =================
+let kontak = JSON.parse(localStorage.getItem("kontak")) || [];
+
+function renderKontak() {
+  const select = document.getElementById("kontakSelect");
+  select.innerHTML = `<option value="">-- Pilih Kontak --</option>`;
+
+  kontak.forEach((k, i) => {
+    select.innerHTML += `<option value="${i}">${k.nama} (${k.nomor})</option>`;
   });
 }
+
+function tambahKontak() {
+  let nama = document.getElementById("namaKontak").value.trim();
+  let nomor = document.getElementById("nomorKontak").value.trim();
+
+  if (!nama || !nomor) {
+    alert("Isi nama dan nomor!");
+    return;
+  }
+
+  kontak.push({ nama, nomor });
+  localStorage.setItem("kontak", JSON.stringify(kontak));
+
+  document.getElementById("namaKontak").value = "";
+  document.getElementById("nomorKontak").value = "";
+
+  renderKontak();
+}
+
+function isiNomor() {
+  let index = document.getElementById("kontakSelect").value;
+  if (index !== "") {
+    document.getElementById("nomor").value = kontak[index].nomor;
+  }
+}
+
+// ================= PREVIEW =================
+const fileInput = document.getElementById("file");
+const previewImg = document.getElementById("previewImg");
+const previewVideo = document.getElementById("previewVideo");
+
+fileInput.addEventListener("change", function() {
+  const file = this.files[0];
+  if (!file) return;
+
+  const url = URL.createObjectURL(file);
+
+  if (file.type.startsWith("image")) {
+    previewImg.src = url;
+    previewImg.style.display = "block";
+    previewVideo.style.display = "none";
+  } else if (file.type.startsWith("video")) {
+    previewVideo.src = url;
+    previewVideo.style.display = "block";
+    previewImg.style.display = "none";
+  }
+});
+
+// ================= KIRIM =================
+async function kirim() {
+  let nomor = document.getElementById("nomor").value.trim();
+  let pesan = document.getElementById("pesan").value.trim();
+  let file = fileInput.files[0];
+  let status = document.getElementById("status");
+  let btn = document.getElementById("btnKirim");
+
+  if (!nomor.startsWith("62")) {
+    alert("Nomor harus diawali 62");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerText = "Mengirim...";
+  status.innerText = "⏳ Upload...";
+
+  let mediaUrl = "";
+
+  try {
+    // upload file
+    if (file) {
+      let formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", UPLOAD_PRESET);
+
+      let upload = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`, {
+        method: "POST",
+        body: formData
+      });
+
+      let result = await upload.json();
+      mediaUrl = result.secure_url;
+    }
+
+    status.innerText = "📤 Kirim WA...";
+
+    let body = {
+      target: nomor,
+      message: pesan
+    };
+
+    if (mediaUrl) {
+      body.url = mediaUrl;
+      body.filename = file.name;
+    }
+
+    await fetch("https://api.fonnte.com/send", {
+      method: "POST",
+      headers: {
+        "Authorization": TOKEN,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    });
+
+    status.innerText = "✅ Berhasil!";
+    alert("Pesan berhasil dikirim!");
+
+  } catch (err) {
+    console.error(err);
+    status.innerText = "❌ Gagal!";
+    alert("Gagal kirim!");
+  }
+
+  btn.disabled = false;
+  btn.innerText = "Kirim";
+}
+
+// load kontak saat buka
+renderKontak();
 </script>
 
 </body>
