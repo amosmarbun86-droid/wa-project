@@ -234,9 +234,12 @@ async function kirim() {
 
     // ================= KIRIM MEDIA =================
     if (uploadSuccess) {
-      body.url = mediaUrl;
-      body.filename = file.name;
-    }
+  body.url = mediaUrl;
+  body.filename = file.name;
+
+  // 🔥 TAMBAHAN PENTING
+  body.message = pesan + "\n\n" + mediaUrl;
+}
 
     let res = await fetch("https://api.fonnte.com/send", {
       method: "POST",
