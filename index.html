@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>WA Sender Pro</title>
+  <title>WA Sender</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
@@ -11,24 +11,18 @@
       background: #f2f2f2;
     }
 
-    h2 {
-      text-align: center;
-    }
-
     input, textarea, button, select {
       width: 100%;
       padding: 12px;
       margin-top: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
-      font-size: 14px;
     }
 
     button {
       background: green;
       color: white;
       font-size: 16px;
-      cursor: pointer;
     }
 
     #previewImg, #previewVideo {
@@ -47,10 +41,11 @@
 
 <body>
 
-<h2>WA Sender Pro</h2>
+<h2>Kirim WhatsApp</h2>
 
 <!-- ================= KONTAK ================= -->
-<h3>📇 Pilih Kontak</h3>
+<h3>📇 Kontak</h3>
+
 <select id="kontakSelect" onchange="isiNomor()">
   <option value="">-- Pilih Kontak --</option>
 </select>
@@ -58,6 +53,11 @@
 <input type="text" id="namaKontak" placeholder="Nama Kontak">
 <input type="text" id="nomorKontak" placeholder="628xxxx">
 <button onclick="tambahKontak()">Tambah Kontak</button>
+
+<input type="file" id="csvFile" accept=".csv">
+<button onclick="importCSV()">Import CSV</button>
+
+<button onclick="hapusKontak()">Hapus Semua Kontak</button>
 
 <hr>
 
@@ -78,7 +78,7 @@
 // ================= CONFIG =================
 const CLOUD_NAME = "dkisbfx29";
 const UPLOAD_PRESET = "ml_default";
-const TOKEN = "ISI_TOKEN_KAMU";
+const TOKEN = ""; // isi token kamu
 
 // ================= KONTAK =================
 let kontak = JSON.parse(localStorage.getItem("kontak")) || [];
@@ -115,6 +115,50 @@ function isiNomor() {
   if (index !== "") {
     document.getElementById("nomor").value = kontak[index].nomor;
   }
+}
+
+function hapusKontak() {
+  if (confirm("Hapus semua kontak?")) {
+    localStorage.removeItem("kontak");
+    kontak = [];
+    renderKontak();
+  }
+}
+
+// ================= IMPORT CSV =================
+function importCSV() {
+  const file = document.getElementById("csvFile").files[0];
+  if (!file) {
+    alert("Pilih file CSV dulu!");
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    const text = e.target.result;
+    const rows = text.split("\n");
+
+    rows.forEach((row, index) => {
+      if (index === 0) return;
+
+      let [nama, nomor] = row.split(",");
+
+      if (nama && nomor) {
+        kontak.push({
+          nama: nama.trim(),
+          nomor: nomor.trim()
+        });
+      }
+    });
+
+    localStorage.setItem("kontak", JSON.stringify(kontak));
+    renderKontak();
+
+    alert("Import CSV berhasil!");
+  };
+
+  reader.readAsText(file);
 }
 
 // ================= PREVIEW =================
@@ -189,7 +233,7 @@ async function kirim() {
     await fetch("https://api.fonnte.com/send", {
       method: "POST",
       headers: {
-        "Authorization": TOKEN,
+        "Authorization": "hMYEWfgYSGSw6KK81TN6",
         "Content-Type": "application/json"
       },
       body: JSON.stringify(body)
