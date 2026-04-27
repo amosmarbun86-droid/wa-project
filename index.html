@@ -5,278 +5,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
-    /* ===== RESET ===== */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #111;
-}
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background: #f2f2f2;
+    }
 
-/* ===== CONTAINER ===== */
-.wa-app {
-  display: flex;
-  height: 100vh;
-}
+    input, textarea, button, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
 
-/* ===== SIDEBAR ===== */
-.wa-left {
-  width: 30%;
-  background: #075e54;
-  color: white;
-  display: flex;
-  flex-direction: column;
-}
+    button {
+      background: green;
+      color: white;
+      font-size: 16px;
+    }
 
-.wa-left-header {
-  padding: 15px;
-  font-size: 18px;
-  font-weight: bold;
-  border-bottom: 1px solid #0b7d6e;
-}
+    #previewImg, #previewVideo {
+      margin-top: 10px;
+      max-width: 100%;
+      display: none;
+      border-radius: 10px;
+    }
 
-.contact {
-  padding: 12px;
-  cursor: pointer;
-  border-bottom: 1px solid #0b7d6e;
-  transition: 0.2s;
-}
-
-.contact:hover {
-  background: #128c7e;
-}
-
-.contact.active {
-  background: #25d366;
-  color: black;
-  font-weight: bold;
-}
-
-/* ===== CHAT AREA ===== */
-.wa-right {
-  width: 70%;
-  display: flex;
-  flex-direction: column;
-  background: #e5ddd5;
-}
-
-/* ===== HEADER ===== */
-.wa-header {
-  background: #075e54;
-  color: white;
-  padding: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.wa-header button {
-  background: transparent;
-  border: none;
-  font-size: 18px;
-  margin-left: 5px;
-  cursor: pointer;
-  color: white;
-}
-
-/* ===== CHAT BOX ===== */
-.wa-chat {
-  flex: 1;
-  padding: 10px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ===== BUBBLE ===== */
-.msg {
-  max-width: 70%;
-  padding: 10px;
-  border-radius: 10px;
-  margin: 5px;
-  word-wrap: break-word;
-  animation: fadeIn 0.2s ease;
-}
-
-.sent {
-  background: #dcf8c6;
-  margin-left: auto;
-}
-
-.received {
-  background: white;
-  margin-right: auto;
-}
-
-/* ===== STATUS ===== */
-.msg small {
-  display: block;
-  font-size: 10px;
-  color: gray;
-  margin-top: 5px;
-  text-align: right;
-}
-
-/* ===== MEDIA ===== */
-.msg img,
-.msg video {
-  max-width: 180px;
-  border-radius: 10px;
-  margin-top: 5px;
-}
-
-/* ===== INPUT ===== */
-.wa-input {
-  display: flex;
-  padding: 10px;
-  background: #f0f0f0;
-  align-items: center;
-}
-
-.wa-input input[type="file"] {
-  width: 80px;
-}
-
-.wa-input input[type="text"] {
-  flex: 1;
-  padding: 10px;
-  margin: 0 5px;
-  border-radius: 20px;
-  border: 1px solid #ccc;
-}
-
-.wa-input button {
-  padding: 10px 15px;
-  background: #25d366;
-  border: none;
-  border-radius: 50%;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-/* ===== SCROLL ===== */
-.wa-chat::-webkit-scrollbar {
-  width: 5px;
-}
-
-.wa-chat::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 10px;
-}
-
-/* ===== ANIMATION ===== */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ===== RESPONSIVE (HP) ===== */
-@media (max-width: 768px) {
-  .wa-left {
-    width: 40%;
-  }
-
-  .wa-right {
-    width: 60%;
-  }
-
-  .msg {
-    max-width: 90%;
-  }
-}
+    #status {
+      margin-top: 10px;
+      text-align: center;
+    }
   </style>
 </head>
 
 <body>
 
-<!-- ================= FORM LAMA (DISEMBUNYIKAN, JANGAN HAPUS) ================= -->
-<div style="display:none;">
+<h2>Kirim WhatsApp</h2>
 
-  <h2>Kirim WhatsApp</h2>
+<!-- ================= KONTAK ================= -->
+<h3>📇 Kontak</h3>
 
-  <!-- KONTAK -->
-  <select id="kontakSelect" onchange="isiNomor()">
-    <option value="">-- Pilih Kontak --</option>
-  </select>
+<select id="kontakSelect" onchange="isiNomor()">
+  <option value="">-- Pilih Kontak --</option>
+</select>
 
-  <input type="text" id="namaKontak" placeholder="Nama Kontak">
-  <input type="text" id="nomorKontak" placeholder="628xxxx">
-  <button onclick="tambahKontak()">Tambah Kontak</button>
+<input type="text" id="namaKontak" placeholder="Nama Kontak">
+<input type="text" id="nomorKontak" placeholder="628xxxx">
+<button onclick="tambahKontak()">Tambah Kontak</button>
 
-  <input type="file" id="csvFile" accept=".csv">
-  <button onclick="importCSV()">Import CSV</button>
+<input type="file" id="csvFile" accept=".csv">
+<button onclick="importCSV()">Import CSV</button>
 
-  <button onclick="hapusKontak()">Hapus Semua Kontak</button>
+<button onclick="hapusKontak()">Hapus Semua Kontak</button>
 
-  <!-- SYSTEM KIRIM -->
-  <input type="text" id="nomor">
-  <textarea id="pesan"></textarea>
+<hr>
 
-  <input type="file" id="fileInput">
+<!-- ================= KIRIM ================= -->
+<input type="text" id="nomor" placeholder="628xxxx">
+<textarea id="pesan" placeholder="Tulis pesan"></textarea>
 
-  <button id="btnKirim" onclick="kirim()">Kirim</button>
+<input type="file" id="file" accept="image/*,video/*">
 
-  <div id="status"></div>
+<img id="previewImg">
+<video id="previewVideo" controls></video>
 
-</div>
+<button id="btnKirim" onclick="kirim()">Kirim</button>
 
+<div id="status"></div>
 
-<!-- ================= UI WHATSAPP (TAMPIL) ================= -->
-<div class="wa-app">
-
-  <!-- SIDEBAR -->
-  <div class="wa-left">
-    <div class="wa-left-header">WhatsApp</div>
-
-    <div class="contact active" onclick="selectContact('628xxxx','Amos')">
-      Amos
-    </div>
-
-    <div class="contact" onclick="selectContact('628xxxx','Budi')">
-      Budi
-    </div>
-  </div>
-
-
-  <!-- CHAT AREA -->
-  <div class="wa-right">
-
-    <!-- HEADER -->
-    <div class="wa-header">
-      <span id="chatName">Pilih Kontak</span>
-
-      <div>
-        <button onclick="chatWA()">💬</button>
-        <button onclick="telp()">📞</button>
-      </div>
-    </div>
-
-    <!-- CHAT -->
-    <div id="chatBox" class="wa-chat"></div>
-
-    <!-- INPUT -->
-    <div class="wa-input">
-
-      <!-- FILE (UI, beda ID biar tidak bentrok) -->
-      <input type="file" id="fileUI" accept="image/*,video/*">
-
-      <!-- PESAN (UI, beda ID) -->
-      <input type="text" id="pesanUI" placeholder="Ketik pesan...">
-
-      <button onclick="sendMessage()">➤</button>
-    </div>
-
-  </div>
-</div>
 <script>
-
-  // ================= CONFIG =================
+// ================= CONFIG =================
 const CLOUD_NAME = "dkisbfx29";
 const UPLOAD_PRESET = "ml_default";
 const TOKEN = ""; // isi token kamu
@@ -506,70 +305,7 @@ async function kirim() {
   btn.disabled = false;
   btn.innerText = "Kirim";
 }
-// ================= STEP 2 (TAMBAHKAN DI SINI) =================
-let currentNomor = "";
 
-function selectContact(nomor, nama) {
-  currentNomor = nomor;
-
-  document.getElementById("chatName").innerText = nama;
-  document.getElementById("nomor").value = nomor;
-
-  document.querySelectorAll(".contact").forEach(c => c.classList.remove("active"));
-  event.target.classList.add("active");
-}
-
-async function sendMessage() {
-  let pesanUI = document.getElementById("pesanUI").value.trim();
-  let fileUI = document.getElementById("fileUI").files[0];
-
-  if (!currentNomor) {
-    alert("Pilih kontak dulu!");
-    return;
-  }
-
-  let bubble = document.createElement("div");
-  bubble.className = "msg sent";
-
-  let isi = "";
-
-  if (pesanUI) {
-    isi += `<div>${pesanUI}</div>`;
-  }
-
-  if (fileUI) {
-    let previewURL = URL.createObjectURL(fileUI);
-
-    if (fileUI.type.startsWith("image")) {
-      isi += `<img src="${previewURL}" style="max-width:150px;border-radius:10px;">`;
-    } else if (fileUI.type.startsWith("video")) {
-      isi += `<video src="${previewURL}" controls style="max-width:150px;"></video>`;
-    }
-  }
-
-  isi += `<div style="font-size:10px;color:gray;">⏳ sending...</div>`;
-  bubble.innerHTML = isi;
-
-  document.getElementById("chatBox").appendChild(bubble);
-
-  document.getElementById("pesan").value = pesanUI;
-
-  if (fileUI) {
-    let dt = new DataTransfer();
-    dt.items.add(fileUI);
-    document.getElementById("fileInput").files = dt.files;
-  }
-
-  try {
-    await kirim();
-    bubble.innerHTML = isi.replace("⏳ sending...", "✓ terkirim");
-  } catch {
-    bubble.innerHTML = isi.replace("⏳ sending...", "❌ gagal");
-  }
-
-  document.getElementById("pesanUI").value = "";
-  document.getElementById("fileUI").value = "";
-  }
 // load kontak saat buka
 renderKontak();
 </script>
