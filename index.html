@@ -4,11 +4,22 @@
   <title>WA Sender</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <!-- 🔐 PROTEKSI LOGIN (WAJIB PALING ATAS) -->
+  <script>
+    if(localStorage.getItem("login") !== "true"){
+      window.location.href = "login.html";
+    }
+  </script>
+
   <style>
     body {
       font-family: Arial;
       padding: 20px;
       background: #f2f2f2;
+    }
+
+    h2 {
+      text-align: center;
     }
 
     input, textarea, button, select {
@@ -17,12 +28,22 @@
       margin-top: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
+      font-size: 14px;
     }
 
     button {
-      background: green;
+      background: #25d366;
       color: white;
       font-size: 16px;
+      border: none;
+    }
+
+    button:hover {
+      background: #1ebe5d;
+    }
+
+    hr {
+      margin: 20px 0;
     }
 
     #previewImg, #previewVideo {
@@ -35,6 +56,12 @@
     #status {
       margin-top: 10px;
       text-align: center;
+      font-weight: bold;
+    }
+
+    .logout-btn {
+      background: red;
+      margin-bottom: 10px;
     }
   </style>
 </head>
@@ -42,6 +69,9 @@
 <body>
 
 <h2>Kirim WhatsApp</h2>
+
+<!-- 🔓 LOGOUT / TEST -->
+<button class="logout-btn" onclick="hapusLogin()">Logout</button>
 
 <!-- ================= KONTAK ================= -->
 <h3>📇 Kontak</h3>
@@ -75,6 +105,14 @@
 <div id="status"></div>
 
 <script>
+
+// 🔓 LOGOUT
+function hapusLogin(){
+  localStorage.removeItem("login");
+  alert("Logout berhasil!");
+  window.location.href = "login.html";
+}
+
 // ================= CONFIG =================
 const CLOUD_NAME = "dkisbfx29";
 const UPLOAD_PRESET = "ml_default";
